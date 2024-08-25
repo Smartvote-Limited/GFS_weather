@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Information</title>
+    <style>
+        /* Your existing CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #0f3c96;
+            color: #fff;
+            font-size: 52px;
+        }
+        .container {
+            border: 1px solid #fff;
+            height: 360px;
+            width: 1920px;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #0f3c96;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            border-radius: 10px;
+        }
+        .logo {
+            width: 10%;
+            text-align: center;
+        }
+        .logo img {
+            height: 300px;
+            width: auto;
+        }
+        .content {
+            width: 80%;
+            text-align: center;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .weather-zone {
+            width: 10%;
+        }
+        #warnsum {
+            display: flex;
+            flex-direction: column; /* Arrange items vertically */
+            justify-content: center; /* Center items vertically */
+            gap: 10px; /* Optional: Add spacing between items */
+        }
+
+        #warnsum img {
+            width: 42px;
+            margin: 0; /* Remove any previous margin settings */
+        }
+
+        #warnsum div {
+            display: inline-block;
+            margin: 0; /* Remove any previous margin settings */
+            text-align: center; /* Center text under each image */
+        }
+
+        #sunrise, #sunset, #moonrise, #moonset {
+            display: inline-block;
+            margin-right: 20px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js" integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        let currentLang = 'tc'; // Start with Chinese (Traditional)
+
+        const translations = {
+            en: {
+                title: "Government Flying Service Air Command and Control Centre",
+                hktTimeLabel: "HKT Time: ",
+                utcTimeLabel: "UTC Time: ",
+                sunriseLabel: "Sunrise: ",
+                sunsetLabel: "Sunset: ",
+                moonriseLabel: "Moonrise: ",
+                moonsetLabel: "Moonset: "
+            },
+            tc: {
+                title: "政府飛行服務隊 飛行指揮及控制中心",
+                hktTimeLabel: "HKT Time: ",
+                utcTimeLabel: "UTC Time: ",
+                sunriseLabel: "Sunrise: ",
+                sunsetLabel: "Sunset: ",
+                moonriseLabel: "Moonrise: ",
+                moonsetLabel: "Moonset: "
+            }
+        };
+
+        function updateTime() {
+            const now = new Date();
+            const hktOffset = 8 * 60; // HKT is UTC+8
+            const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+            const hkt = new Date(utc.getTime() + hktOffset * 60000);
+
+            const hktFormatted = `${padWithZero(hkt.getDate())}/${padWithZero(hkt.getMonth() + 1)}/${hkt.getFullYear()}, ${padWithZero(hkt.getHours())}:${padWithZero(hkt.getMinutes())}:${padWithZero(hkt.getSeconds())}`;
+            const utcFormatted = `${padWithZero(utc.getDate())}/${padWithZero(utc.getMonth() + 1)}/${utc.getFullYear()}, ${padWithZero(utc.getHours())}:${padWithZero(utc.getMinutes())}:${padWithZero(utc.getSeconds())}`;
+
+            document.getElementById("hkt-time").textContent = translations[currentLang].hktTimeLabel + hktFormatted;
+            document.getElementById("utc-time").textContent = translations[currentLang].utcTimeLabel + utcFormatted;
+        }
+
+        function padWithZero(number) {
+            return number.toString().padStart(2, '0');
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'tc' ? 'en' : 'tc';
+            updateTranslations();
+            updateTime();
+        }
+
+        function updateTranslations() {
+            document.getElementById("title").textContent = translations[currentLang].title;
+            document.getElementById("sunrise-label").firstChild.textContent = translations[currentLang].sunriseLabel;
+            document.getElementById("sunset-label").firstChild.textContent = translations[currentLang].sunsetLabel;
+            document.getElementById("moonrise-label").firstChild.textContent = translations[currentLang].moonriseLabel;
+            document.getElementById("moonset-label").firstChild.textContent = translations[currentLang].moonsetLabel;
+        }
+
+        function fetchWeatherData() {
+            let warnsum_div = document.getElementById("warnsum");
+
+            function fetchData(url) {
+                return new Promise((resolve, reject) => {
+                    $.get(url, (data, status) => {
+                        if (status === "success") {
+                            resolve(data);
+                        } else {
+                            reject(new Error("Failed to fetch data"));
+                        }
+                    });
+                });
+            }
+
+            // Fetch today's weather information
+            const weatherURL = `https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=${currentLang}`;
+            fetchData(weatherURL).then(data => {
+                // Process the weather information
+                warnsum_div.innerHTML += "<div style='display: inline-flex; align-items: center; margin-right: 15px;'><img src='https://www.hko.gov.hk/images/HKOWxIconOutline/pic53.png' style='margin-right: 5px;' /> <div>" + data.temperature.data[16].value + "°C </div></div>";
+                warnsum_div.innerHTML += "<div style='display: inline-flex; align-items: center; margin-right: 15px;'><img src='https://img.icons8.com/ios/50/wet.png' style='margin-right: 5px;' /> <div>" + data.humidity.data[0].value + "% </div></div>";
+                warnsum_div.innerHTML += "<div style='display: inline-flex; align-items: center; margin-right: 15px;'><img src='https://img.icons8.com/external-flaticons-lineal-color-flat-icons/64/external-uv-index-weather-flaticons-lineal-color-flat-icons-2.png' style='margin-right: 5px;' /> <div>" + data.uvindex.data[0].value + "</div></div>";
+
+                // Fetch weather warning summary after the weather information is processed
+                const warnsumURL = `https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=${currentLang}`;
+                return fetchData(warnsumURL);
+            }).then(data => {
+                // Initialize an empty string to accumulate the HTML
+                let htmlContent = "<div style='display: flex; flex-wrap: wrap;'>";
+
+                // Define a fixed order for the warnings
+                const warningTypes = [
+                    { type: 'WFIRE', codes: { "WFIREY": 'firey.gif', "WFIRER": 'firer.gif' } },
+                    { type: 'WFROST', src: 'frost.gif' },
+                    { type: 'WHOT', src: 'vhot.gif' },
+                    { type: 'WCOLD', src: 'cold.gif' },
+                    { type: 'WMSGNL', src: 'sms.gif' },
+                    { type: 'WRAIN', codes: { "WRAINA": 'raina.gif', "WRAINR": 'rainr.gif', "WRAINB": 'rainb.gif' } },
+                    { type: 'WFNTSA', src: 'ntfl.gif' },
+                    { type: 'WL', src: 'landslip.gif' },
+                    { type: 'WTCSGNL', codes: { "TC1": 'tc1.gif', "TC3": 'tc3.gif', "TC8NE": 'tc8ne.gif', "TC8SE": 'tc8b.gif', "TC8NW": 'tc8d.gif', "TC8SW": 'tc8c.gif', "TC9": 'tc9.gif', "TC10": 'tc10.gif' } },
+                    { type: 'WTMW', src: 'tsunami-warn.gif' },
+                    { type: 'WTS', src: 'ts.gif' }
+                ];
+
+                // Generate HTML content based on the fixed order
+                warningTypes.forEach(warning => {
+                    if (data[warning.type] !== undefined) {
+                        const warningData = data[warning.type];
+                        if (warning.codes && warningData.code) {
+                            const imgSrc = warning.codes[warningData.code];
+                            if (imgSrc) {
+                                htmlContent += `<img style='width: 42px; margin: 5px;' src='https://www.hko.gov.hk/en/wxinfo/dailywx/images/${imgSrc}' />`;
+                            }
+                        } else if (warning.src) {
+                            htmlContent += `<img style='width: 42px; margin: 5px;' src='https://www.hko.gov.hk/en/wxinfo/dailywx/images/${warning.src}' />`;
+                        }
+                    }
+                });
+
+                // Close the div
+                htmlContent += "</div>";
+
+                // Append the generated HTML to warnsum_div
+                warnsum_div.innerHTML += htmlContent;
+            }).catch(error => {
+                console.error("Error fetching data:", error);
+            });
+
+            // Fetch today's sunrise and sunset times
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth() + 1; // Month is zero-based, so add 1
+            const day = today.getDate();
+
+            const sunriseSunsetURL = `https://data.weather.gov.hk/weatherAPI/opendata/opendata.php?dataType=SRS&lang=${currentLang}&rformat=json&year=${year}&month=${month}&day=${day}`;
+
+            $.get(sunriseSunsetURL, (response, status) => {
+                if (response && response.fields && response.data && response.data[0]) {
+                    const fieldsArray = response.fields;
+                    const dataArray = response.data[0];
+
+                    // Find the index of the "RISE" and "SET" fields
+                    const sunriseIndex = fieldsArray.indexOf("RISE");
+                    const sunsetIndex = fieldsArray.indexOf("SET");
+
+                    // Ensure the indices are found before trying to access the data
+                    if (sunriseIndex !== -1 && sunsetIndex !== -1) {
+                        const sunriseTime = dataArray[sunriseIndex];
+                        const sunsetTime = dataArray[sunsetIndex];
+
+                        // Display the extracted times in the HTML elements
+                        document.getElementById("sunrise").textContent = sunriseTime;
+                        document.getElementById("sunset").textContent = sunsetTime;
+                    } else {
+                        console.error("RISE or SET field not found in response.");
+                    }
+                }
+            });
+
+            const moonriseMoonsetURL = `https://data.weather.gov.hk/weatherAPI/opendata/opendata.php?dataType=MRS&lang=${currentLang}&rformat=json&year=${year}&month=${month}&day=${day}`;
+
+            $.get(moonriseMoonsetURL, (response, status) => {
+                if (response && response.fields && response.data && response.data[0]) {
+                    const fieldsArray = response.fields;
+                    const dataArray = response.data[0];
+
+                    // Find the index of the "RISE" and "SET" fields
+                    const moonriseIndex = fieldsArray.indexOf("RISE");
+                    const moonsetIndex = fieldsArray.indexOf("SET");
+
+                    // Ensure the indices are found before trying to access the data
+                    if (moonriseIndex !== -1 && moonsetIndex !== -1) {
+                        const moonriseTime = dataArray[moonriseIndex];
+                        const moonsetTime = dataArray[moonsetIndex];
+
+                        // Display the extracted times in the HTML elements
+                        document.getElementById("moonrise").textContent = moonriseTime;
+                        document.getElementById("moonset").textContent = moonsetTime;
+                    } else {
+                        console.error("RISE or SET field not found in response.");
+                    }
+                }
+            });
+
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchWeatherData();
+            setInterval(fetchWeatherData, 1000 * 60 * 30); // Update every 30 minutes
+
+            updateTime();
+            setInterval(updateTime, 1000); // Update time every second
+
+            updateTranslations();
+            setInterval(toggleLanguage, 1000 * 30); // Switch language every 30 seconds
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo"><img src="https://www.gfs.gov.hk/filemanager/template/common/images/logo-GFS.svg" alt="Logo"></div>
+        <div class="content">
+            <div id="title">Government Flying Service Air Command and Control Centre</div>
+            <div id="hkt-time">HKT Time: </div>
+            <div id="utc-time">UTC Time: </div>
+            <div>
+                <div style='display: inline-flex;' >
+                    <div id="sunrise-label">Sunrise: <span id="sunrise"></span></div>
+                    <div id="sunset-label">Sunset: <span id="sunset"></span></div>
+                </div>
+            </div>
+            <div>
+                <div style='display: inline-flex;' >
+                    <div id="moonrise-label">Moonrise: <span id="moonrise"></span></div>
+                    <div id="moonset-label">Moonset: <span id="moonset"></span></div>
+                </div>
+            </div>
+        </div>
+        <div class="weather-zone">
+            <div id="warnsum"></div>
+        </div>
+    </div>
+</body>
+</html>
