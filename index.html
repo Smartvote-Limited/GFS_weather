@@ -128,7 +128,6 @@
 
         function fetchWeatherData() {
             let warnsum_div = document.getElementById("warnsum");
-            warnsum_div.innerHTML = "";
 
             function fetchData(url) {
                 return new Promise((resolve, reject) => {
@@ -145,6 +144,7 @@
             // Fetch today's weather information
             const weatherURL = `https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread`;
             fetchData(weatherURL).then(data => {
+                warnsum_div.innerHTML = "";
                 // Process the weather information
                 warnsum_div.innerHTML += "<div style='display: inline-flex; align-items: center; margin-right: 15px;'><img src='https://www.hko.gov.hk/images/HKOWxIconOutline/pic53.png' style='margin-right: 5px;' /> <div>" + data.temperature.data.find(item => item.place === "Chek Lap Kok").value + "°C </div></div>";
                 warnsum_div.innerHTML += "<div style='display: inline-flex; align-items: center; margin-right: 15px;'><img src='https://img.icons8.com/ios/50/wet.png' style='margin-right: 5px;' /> <div>" + data.humidity.data.find(item => item.place === "Hong Kong Observatory").value + "% </div></div>";
@@ -256,7 +256,7 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             fetchWeatherData();
-            setInterval(fetchWeatherData, 1000 * 60 * 5); // Update every 30 minutes
+            setInterval(fetchWeatherData, 1000 * 60 * 5); // Update every 5 minutes
 
             updateTime();
             setInterval(updateTime, 1000); // Update time every second
