@@ -147,7 +147,7 @@
                 warnsum_div.innerHTML = "";
                 // Process the weather information
                 warnsum_div.innerHTML += `<div style='display: inline-flex; align-items: center; margin-right: 15px;'><img src='https://www.hko.gov.hk/images/HKOWxIconOutline/pic${data.icon[0]}.png' style='margin-right: 5px;' /> <div>` + data.temperature.data.find(item => item.place === "Chek Lap Kok").value + "°C </div></div>";
-                warnsum_div.innerHTML += "<div style='display: inline-flex; align-items: center; margin-right: 15px;'><img src='https://img.icons8.com/ios/50/wet.png' style='margin-right: 5px;' /> <div>" + data.humidity.data.find(item => item.place === "Hong Kong Observatory").value + "% </div></div>";
+                warnsum_div.innerHTML += "<div style='display: inline-flex; align-items: center; margin-right: 15px;'><img src='https://img.icons8.com/ios/50/wet.png' style='margin-right: 5px; filter: invert(1);' /> <div>" + data.humidity.data.find(item => item.place === "Hong Kong Observatory").value + "% </div></div>";
                 if (data.uvindex?.data?.[0]?.value)
                     warnsum_div.innerHTML += "<div style='display: inline-flex; align-items: center; margin-right: 15px;'><img src='https://img.icons8.com/external-flaticons-lineal-color-flat-icons/64/external-uv-index-weather-flaticons-lineal-color-flat-icons-2.png' style='margin-right: 5px;' /> <div>" + data.uvindex.data[0].value + "</div></div>";
 
