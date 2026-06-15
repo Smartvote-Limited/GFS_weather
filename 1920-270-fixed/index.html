@@ -135,6 +135,9 @@
             overflow: hidden;
         }
 
+        #sunrise, #sunset, #moonrise, #moonset {
+            display: inline-block;
+        }
         #title {
             font-size: 44px;
             font-weight: 700;
@@ -146,6 +149,14 @@
             line-height: 1;
             white-space: nowrap;
         }
+        .astro-row {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            font-size: 30px;
+            line-height: 1.1;
+            white-space: nowrap;
+        }
     </style>
     <script>
         let currentLang = 'tc'; // Start with Chinese (Traditional)
@@ -153,11 +164,19 @@
         const translations = {
             en: {
                 title: "Government Flying Service",
-                hktTimeLabel: "HKT Time: "
+                hktTimeLabel: "HKT Time: ",
+                sunriseLabel: "Sunrise: ",
+                sunsetLabel: "Sunset: ",
+                moonriseLabel: "Moonrise: ",
+                moonsetLabel: "Moonset: "
             },
             tc: {
                 title: "政府飛行服務隊",
-                hktTimeLabel: "香港時間："
+                hktTimeLabel: "香港時間：",
+                sunriseLabel: "Sunrise: ",
+                sunsetLabel: "Sunset: ",
+                moonriseLabel: "Moonrise: ",
+                moonsetLabel: "Moonset: "
             }
         };
 
@@ -184,6 +203,10 @@
 
         function updateTranslations() {
             document.getElementById("title").textContent = translations[currentLang].title;
+            document.getElementById("sunrise-label").firstChild.textContent = translations[currentLang].sunriseLabel;
+            document.getElementById("sunset-label").firstChild.textContent = translations[currentLang].sunsetLabel;
+            document.getElementById("moonrise-label").firstChild.textContent = translations[currentLang].moonriseLabel;
+            document.getElementById("moonset-label").firstChild.textContent = translations[currentLang].moonsetLabel;
         }
 
         function createWeatherItem(iconSrc, value, invertIcon = false) {
@@ -296,6 +319,52 @@
                 console.error("Error fetching data:", error);
             });
 
+            // Fetch today's sunrise, sunset, moonrise, and moonset times
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth() + 1;
+            const day = today.getDate();
+
+            const sunriseSunsetURL = `https://data.weather.gov.hk/weatherAPI/opendata/opendata.php?dataType=SRS&lang=${currentLang}&rformat=json&year=${year}&month=${month}&day=${day}`;
+
+            fetchData(sunriseSunsetURL).then(response => {
+                if (response && response.fields && response.data && response.data[0]) {
+                    const fieldsArray = response.fields;
+                    const dataArray = response.data[0];
+                    const sunriseIndex = fieldsArray.indexOf("RISE");
+                    const sunsetIndex = fieldsArray.indexOf("SET");
+
+                    if (sunriseIndex !== -1 && sunsetIndex !== -1) {
+                        document.getElementById("sunrise").textContent = dataArray[sunriseIndex];
+                        document.getElementById("sunset").textContent = dataArray[sunsetIndex];
+                    } else {
+                        console.error("RISE or SET field not found in sunrise/sunset response.");
+                    }
+                }
+            }).catch(error => {
+                console.error("Error fetching sunrise/sunset data:", error);
+            });
+
+            const moonriseMoonsetURL = `https://data.weather.gov.hk/weatherAPI/opendata/opendata.php?dataType=MRS&lang=${currentLang}&rformat=json&year=${year}&month=${month}&day=${day}`;
+
+            fetchData(moonriseMoonsetURL).then(response => {
+                if (response && response.fields && response.data && response.data[0]) {
+                    const fieldsArray = response.fields;
+                    const dataArray = response.data[0];
+                    const moonriseIndex = fieldsArray.indexOf("RISE");
+                    const moonsetIndex = fieldsArray.indexOf("SET");
+
+                    if (moonriseIndex !== -1 && moonsetIndex !== -1) {
+                        document.getElementById("moonrise").textContent = dataArray[moonriseIndex];
+                        document.getElementById("moonset").textContent = dataArray[moonsetIndex];
+                    } else {
+                        console.error("RISE or SET field not found in moonrise/moonset response.");
+                    }
+                }
+            }).catch(error => {
+                console.error("Error fetching moonrise/moonset data:", error);
+            });
+
         }
 
         document.addEventListener("DOMContentLoaded", function () {
@@ -317,6 +386,14 @@
         <div class="content">
             <div id="title">Government Flying Service</div>
             <div id="hkt-time">HKT Time: </div>
+            <div class="astro-row">
+                <div id="sunrise-label">Sunrise: <span id="sunrise"></span></div>
+                <div id="sunset-label">Sunset: <span id="sunset"></span></div>
+            </div>
+            <div class="astro-row">
+                <div id="moonrise-label">Moonrise: <span id="moonrise"></span></div>
+                <div id="moonset-label">Moonset: <span id="moonset"></span></div>
+            </div>
         </div>
         <div class="weather-zone">
             <div id="warnsum"></div>
