@@ -167,7 +167,7 @@
             const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
             const hkt = new Date(utc.getTime() + hktOffset * 60000);
 
-            const hktFormatted = `${padWithZero(hkt.getDate())}/${padWithZero(hkt.getMonth() + 1)}/${hkt.getFullYear()}, ${padWithZero(hkt.getHours())}:${padWithZero(hkt.getMinutes())}:${padWithZero(hkt.getSeconds())}`;
+            const hktFormatted = `${padWithZero(hkt.getHours())}:${padWithZero(hkt.getMinutes())}:${padWithZero(hkt.getSeconds())}, ${padWithZero(hkt.getDate())}/${padWithZero(hkt.getMonth() + 1)}/${hkt.getFullYear()}`;
 
             document.getElementById("hkt-time").textContent = translations[currentLang].hktTimeLabel + hktFormatted;
         }
