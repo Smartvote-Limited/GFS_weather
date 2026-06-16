@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, initial-scale=1.0, user-scalable=no">
+    <title>Weather Information</title>
+    <style>
+        :root {
+            --stage-width: 1920px;
+            --stage-blue: #0f3c96;
+            --left-padding: 120px;
+            --right-padding: 150px;
+            --side-column-width: 240px;
+            --vertical-padding: min(16px, 5.9259vh);
+            --logo-height: min(220px, 81.4815vh);
+            --content-gap: min(10px, 3.7037vh);
+            --weather-gap: min(8px, 2.963vh);
+            --warning-gap: min(6px, 2.2222vh);
+            --weather-item-gap: min(5px, 1.8519vh);
+            --weather-icon-size: min(42px, 15.5556vh);
+            --weather-font-size: min(34px, 12.5926vh);
+            --title-font-size: min(80px, 29.6296vh);
+            --time-font-size: min(52px, 19.2593vh);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: var(--stage-width);
+            min-width: var(--stage-width);
+            max-width: var(--stage-width);
+            height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            background-color: var(--stage-blue);
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: flex-start;
+            align-items: stretch;
+            color: #fff;
+            font-size: 36px;
+        }
+        .container {
+            width: var(--stage-width);
+            min-width: var(--stage-width);
+            max-width: var(--stage-width);
+            height: 100vh;
+            padding: var(--vertical-padding) var(--right-padding) var(--vertical-padding) var(--left-padding);
+            background-color: var(--stage-blue);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            gap: 20px;
+            overflow: visible;
+        }
+        .logo {
+            width: var(--side-column-width);
+            text-align: center;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo img {
+            height: var(--logo-height);
+            width: auto;
+            display: block;
+        }
+        .content {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: var(--content-gap);
+            min-width: 0;
+        }
+        .weather-zone {
+            width: var(--side-column-width);
+            flex-shrink: 0;
+            overflow: visible;
+        }
+        #warnsum {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: var(--weather-gap);
+            width: 100%;
+            overflow: visible;
+        }
+
+        #warnsum img {
+            width: var(--weather-icon-size);
+            height: var(--weather-icon-size);
+            margin: 0;
+            flex: 0 0 auto;
+            object-fit: contain;
+        }
+
+        #warnsum div {
+            margin: 0;
+            text-align: center;
+        }
+
+        .weather-item {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--weather-item-gap);
+            height: var(--weather-icon-size);
+            max-width: 100%;
+            white-space: nowrap;
+            font-size: var(--weather-font-size);
+            line-height: 1;
+        }
+
+        .weather-icon-invert {
+            filter: invert(1);
+        }
+
+        .warning-list {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: var(--warning-gap);
+            width: 100%;
+            overflow: visible;
+        }
+
+        #title {
+            font-size: var(--title-font-size);
+            font-weight: 700;
+            line-height: 1;
+        }
+        #hkt-time {
+            font-size: var(--time-font-size);
+            font-weight: 700;
+            line-height: 1.05;
+            white-space: nowrap;
+        }
+    </style>
+    <script>
+        let currentLang = 'tc'; // Start with Chinese (Traditional)
+
+        const translations = {
+            en: {
+                title: "Government Flying Service",
+                hktTimeLabel: "HKT Time: "
+            },
+            tc: {
+                title: "政府飛行服務隊",
+                hktTimeLabel: "香港時間："
+            }
+        };
+
+        function updateTime() {
+            const now = new Date();
+            const hktOffset = 8 * 60; // HKT is UTC+8
+            const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+            const hkt = new Date(utc.getTime() + hktOffset * 60000);
+
+            const hktFormatted = `${padWithZero(hkt.getHours())}:${padWithZero(hkt.getMinutes())}:${padWithZero(hkt.getSeconds())}, ${padWithZero(hkt.getDate())}/${padWithZero(hkt.getMonth() + 1)}/${hkt.getFullYear()}`;
+
+            document.getElementById("hkt-time").textContent = translations[currentLang].hktTimeLabel + hktFormatted;
+        }
+
+        function padWithZero(number) {
+            return number.toString().padStart(2, '0');
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'tc' ? 'en' : 'tc';
+            updateTranslations();
+            updateTime();
+        }
+
+        function updateTranslations() {
+            document.getElementById("title").textContent = translations[currentLang].title;
+        }
+
+        function createWeatherItem(iconSrc, value, invertIcon = false) {
+            const item = document.createElement("div");
+            item.className = "weather-item";
+
+            const icon = document.createElement("img");
+            icon.src = iconSrc;
+            icon.alt = "";
+            if (invertIcon) {
+                icon.className = "weather-icon-invert";
+            }
+
+            const text = document.createElement("div");
+            text.textContent = value;
+
+            item.append(icon, text);
+            return item;
+        }
+
+        function createWarningIcon(src) {
+            const icon = document.createElement("img");
+            icon.src = src;
+            icon.alt = "";
+            return icon;
+        }
+
+        function renderWeatherSummary({ iconCode, temperature = "--", humidity = "--", uvIndex } = {}) {
+            const warnsum = document.getElementById("warnsum");
+            warnsum.innerHTML = "";
+
+            const weatherIcon = iconCode
+                ? `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`
+                : "https://www.hko.gov.hk/images/HKOWxIconOutline/pic60.png";
+
+            warnsum.append(createWeatherItem(weatherIcon, `${temperature}°C`));
+            warnsum.append(createWeatherItem("https://img.icons8.com/ios/50/wet.png", `${humidity}%`, true));
+
+            if (uvIndex !== undefined) {
+                warnsum.append(createWeatherItem("https://img.icons8.com/external-flaticons-lineal-color-flat-icons/64/external-uv-index-weather-flaticons-lineal-color-flat-icons-2.png", uvIndex));
+            }
+        }
+
+        async function fetchData(url) {
+            const response = await fetch(url, { cache: "no-store" });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch data: ${response.status}`);
+            }
+            return response.json();
+        }
+
+        async function fetchWeatherData() {
+            let warnsum_div = document.getElementById("warnsum");
+
+            // Fetch today's weather information
+            const weatherURL = `https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread`;
+            fetchData(weatherURL).then(data => {
+                // Process the weather information
+                const weatherIcon = data.icon?.[0];
+                const temperature = data.temperature?.data?.find(item => item.place === "Chek Lap Kok")?.value;
+                const humidity = data.humidity?.data?.find(item => item.place === "Hong Kong Observatory")?.value;
+                const uvIndex = data.uvindex?.data?.[0]?.value;
+
+                renderWeatherSummary({
+                    iconCode: weatherIcon,
+                    temperature: temperature ?? "--",
+                    humidity: humidity ?? "--",
+                    uvIndex
+                });
+
+                // Fetch weather warning summary after the weather information is processed
+                const warnsumURL = `https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum`;
+                return fetchData(warnsumURL);
+            }).then(data => {
+                const warningList = document.createElement("div");
+                warningList.className = "warning-list";
+
+                // Define a fixed order for the warnings
+                const warningTypes = [
+                    { type: 'WFIRE', codes: { "WFIREY": 'firey.gif', "WFIRER": 'firer.gif' } },
+                    { type: 'WFROST', src: 'frost.gif' },
+                    { type: 'WHOT', src: 'vhot.gif' },
+                    { type: 'WCOLD', src: 'cold.gif' },
+                    { type: 'WMSGNL', src: 'sms.gif' },
+                    { type: 'WRAIN', codes: { "WRAINA": 'raina.gif', "WRAINR": 'rainr.gif', "WRAINB": 'rainb.gif' } },
+                    { type: 'WFNTSA', src: 'ntfl.gif' },
+                    { type: 'WL', src: 'landslip.gif' },
+                    { type: 'WTCSGNL', codes: { "TC1": 'tc1.gif', "TC3": 'tc3.gif', "TC8NE": 'tc8ne.gif', "TC8SE": 'tc8b.gif', "TC8NW": 'tc8d.gif', "TC8SW": 'tc8c.gif', "TC9": 'tc9.gif', "TC10": 'tc10.gif' } },
+                    { type: 'WTMW', src: 'tsunami-warn.gif' },
+                    { type: 'WTS', src: 'ts.gif' }
+                ];
+
+                // Generate HTML content based on the fixed order
+                warningTypes.forEach(warning => {
+                    if (data[warning.type] !== undefined) {
+                        const warningData = data[warning.type];
+                        if (warning.codes && warningData.code) {
+                            const imgSrc = warning.codes[warningData.code];
+                            if (imgSrc) {
+                                warningList.append(createWarningIcon(`https://www.hko.gov.hk/en/wxinfo/dailywx/images/${imgSrc}`));
+                            }
+                        } else if (warning.src) {
+                            warningList.append(createWarningIcon(`https://www.hko.gov.hk/en/wxinfo/dailywx/images/${warning.src}`));
+                        }
+                    }
+                });
+
+                warnsum_div.append(warningList);
+            }).catch(error => {
+                console.error("Error fetching data:", error);
+            });
+
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            renderWeatherSummary();
+            fetchWeatherData();
+            setInterval(fetchWeatherData, 1000 * 60 * 5); // Update every 5 minutes
+
+            updateTime();
+            setInterval(updateTime, 1000); // Update time every second
+
+            updateTranslations();
+            setInterval(toggleLanguage, 1000 * 30); // Switch language every 30 seconds
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo"><img src="https://www.gfs.gov.hk/filemanager/template/common/images/logo-GFS.svg" alt="Logo"></div>
+        <div class="content">
+            <div id="title">Government Flying Service</div>
+            <div id="hkt-time">HKT Time: </div>
+        </div>
+        <div class="weather-zone">
+            <div id="warnsum"></div>
+        </div>
+    </div>
+</body>
+</html>
