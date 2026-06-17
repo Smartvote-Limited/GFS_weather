@@ -13,7 +13,12 @@
             --right-padding: 120px;
             --side-column-width: 240px;
             --weather-scale: 1.12;
+            --weather-row-height: calc(42px * var(--weather-scale));
+            --weather-stack-gap: calc(8px * var(--weather-scale));
             --warning-icon-height-multiplier: 1.5;
+            --warning-row-gap: 2px;
+            --warning-column-gap: 2px;
+            --warning-row-height: calc((3 * var(--weather-row-height) + 2 * var(--weather-stack-gap) - var(--warning-row-gap)) / 2);
         }
 
         * {
@@ -154,7 +159,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: flex-end;
-            gap: calc(8px * var(--weather-scale));
+            gap: var(--weather-stack-gap);
             min-width: 0;
         }
 
@@ -162,7 +167,7 @@
             display: inline-flex;
             align-items: center;
             gap: calc(5px * var(--weather-scale));
-            height: calc(42px * var(--weather-scale));
+            height: var(--weather-row-height);
             max-width: 100%;
             white-space: nowrap;
             font-size: calc(34px * var(--weather-scale));
@@ -176,18 +181,19 @@
         .warning-list {
             display: grid;
             grid-auto-flow: column;
-            grid-template-rows: repeat(2, calc(42px * var(--weather-scale) * var(--warning-icon-height-multiplier)));
+            grid-template-rows: repeat(2, var(--warning-row-height));
             align-items: center;
-            row-gap: calc(6px * var(--weather-scale));
-            column-gap: calc(6px * var(--weather-scale));
+            row-gap: var(--warning-row-gap);
+            column-gap: var(--warning-column-gap);
             width: max-content;
             max-height: 100%;
             overflow: hidden;
         }
 
         #warnsum img.warning-icon {
-            width: calc(42px * var(--weather-scale) * var(--warning-icon-height-multiplier));
-            height: calc(42px * var(--weather-scale) * var(--warning-icon-height-multiplier));
+            width: auto;
+            height: var(--warning-row-height);
+            display: block;
         }
     </style>
 </head>
@@ -260,6 +266,8 @@
             icon.src = src;
             icon.alt = "";
             icon.className = "warning-icon";
+            icon.addEventListener("load", syncPreviewLayout, { once: true });
+            icon.addEventListener("error", syncPreviewLayout, { once: true });
             return icon;
         }
 
