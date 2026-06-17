@@ -13,7 +13,7 @@
             --right-padding: 120px;
             --side-column-width: 240px;
             --weather-scale: 1.12;
-            --warning-icon-scale: 1.35;
+            --warning-icon-height-multiplier: 1.5;
         }
 
         * {
@@ -155,7 +155,8 @@
         .warning-list {
             display: grid;
             grid-auto-flow: column;
-            grid-template-rows: repeat(3, auto);
+            grid-template-rows: repeat(2, calc(42px * var(--weather-scale) * var(--warning-icon-height-multiplier)));
+            align-items: center;
             row-gap: calc(6px * var(--weather-scale));
             column-gap: calc(6px * var(--weather-scale));
             width: max-content;
@@ -163,9 +164,9 @@
             overflow: hidden;
         }
 
-        .warning-icon {
-            width: calc(42px * var(--weather-scale) * var(--warning-icon-scale));
-            height: calc(42px * var(--weather-scale) * var(--warning-icon-scale));
+        #warnsum img.warning-icon {
+            width: calc(42px * var(--weather-scale) * var(--warning-icon-height-multiplier));
+            height: calc(42px * var(--weather-scale) * var(--warning-icon-height-multiplier));
         }
     </style>
 </head>
