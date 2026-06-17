@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=270, initial-scale=1.0, user-scalable=no">
+    <title>Warning Icon Preview</title>
+    <style>
+        :root {
+            --stage-width: 1920px;
+            --stage-height: 270px;
+            --stage-blue: #0f3c96;
+            --left-padding: 120px;
+            --right-padding: 120px;
+            --side-column-width: 240px;
+            --weather-scale: 1.12;
+            --warning-icon-scale: 1.35;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: var(--stage-width);
+            min-width: var(--stage-width);
+            max-width: var(--stage-width);
+            height: var(--stage-height);
+            min-height: var(--stage-height);
+            max-height: var(--stage-height);
+            margin: 0;
+            overflow: hidden;
+            background: var(--stage-blue);
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            padding: 16px var(--right-padding) 16px var(--left-padding);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            background: var(--stage-blue);
+        }
+
+        .logo {
+            width: var(--side-column-width);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            height: 220px;
+            width: auto;
+            display: block;
+        }
+
+        .content {
+            flex: 1;
+            min-width: 0;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #title {
+            font-size: 80px;
+            font-weight: 700;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        #hkt-time {
+            font-size: 52px;
+            font-weight: 700;
+            line-height: 1.05;
+            white-space: nowrap;
+        }
+
+        .weather-zone {
+            position: absolute;
+            top: 16px;
+            right: var(--right-padding);
+            bottom: 16px;
+            width: var(--side-column-width);
+            z-index: 1;
+            overflow: visible;
+        }
+
+        #warnsum {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        #warnsum img {
+            width: calc(42px * var(--weather-scale));
+            height: calc(42px * var(--weather-scale));
+            margin: 0;
+            flex: 0 0 auto;
+            object-fit: contain;
+        }
+
+        .warning-column {
+            position: absolute;
+            left: 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            overflow: visible;
+        }
+
+        .summary-column {
+            position: absolute;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            gap: calc(8px * var(--weather-scale));
+            min-width: 0;
+        }
+
+        .weather-item {
+            display: inline-flex;
+            align-items: center;
+            gap: calc(5px * var(--weather-scale));
+            height: calc(42px * var(--weather-scale));
+            max-width: 100%;
+            white-space: nowrap;
+            font-size: calc(34px * var(--weather-scale));
+            line-height: 1;
+        }
+
+        .weather-icon-invert {
+            filter: invert(1);
+        }
+
+        .warning-list {
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-rows: repeat(3, auto);
+            row-gap: calc(6px * var(--weather-scale));
+            column-gap: calc(6px * var(--weather-scale));
+            width: max-content;
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        .warning-icon {
+            width: calc(42px * var(--weather-scale) * var(--warning-icon-scale));
+            height: calc(42px * var(--weather-scale) * var(--warning-icon-scale));
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://www.gfs.gov.hk/filemanager/template/common/images/logo-GFS.svg" alt="Logo">
+        </div>
+        <div class="content">
+            <div id="title">Government Flying Service</div>
+            <div id="hkt-time">HKT Time: 10:29:23, 17/06/2026</div>
+        </div>
+        <div class="weather-zone">
+            <div id="warnsum">
+                <div class="warning-column">
+                    <div class="warning-list" id="warning-list"></div>
+                </div>
+                <div class="summary-column" id="summary-column"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const warningIcons = [
+            "firey.gif",
+            "firer.gif",
+            "frost.gif",
+            "vhot.gif",
+            "cold.gif",
+            "sms.gif",
+            "raina.gif",
+            "rainr.gif",
+            "rainb.gif",
+            "ntfl.gif",
+            "landslip.gif",
+            "tc1.gif",
+            "tc3.gif",
+            "tc8ne.gif",
+            "tc8b.gif",
+            "tc8d.gif",
+            "tc8c.gif",
+            "tc9.gif",
+            "tc10.gif",
+            "tsunami-warn.gif",
+            "ts.gif"
+        ];
+
+        function createWeatherItem(iconSrc, value, invertIcon = false) {
+            const item = document.createElement("div");
+            item.className = "weather-item";
+
+            const icon = document.createElement("img");
+            icon.src = iconSrc;
+            icon.alt = "";
+            if (invertIcon) {
+                icon.className = "weather-icon-invert";
+            }
+
+            const text = document.createElement("div");
+            text.textContent = value;
+
+            item.append(icon, text);
+            return item;
+        }
+
+        function createWarningIcon(src) {
+            const icon = document.createElement("img");
+            icon.src = src;
+            icon.alt = "";
+            icon.className = "warning-icon";
+            return icon;
+        }
+
+        const summaryColumn = document.getElementById("summary-column");
+        summaryColumn.append(createWeatherItem("https://www.hko.gov.hk/images/HKOWxIconOutline/pic60.png", "26°C"));
+        summaryColumn.append(createWeatherItem("https://img.icons8.com/ios/50/wet.png", "87%", true));
+        summaryColumn.append(createWeatherItem("https://img.icons8.com/external-flaticons-lineal-color-flat-icons/64/external-uv-index-weather-flaticons-lineal-color-flat-icons-2.png", "1"));
+
+        const warningList = document.getElementById("warning-list");
+        warningIcons.forEach(fileName => {
+            warningList.append(createWarningIcon(`https://www.hko.gov.hk/en/wxinfo/dailywx/images/${fileName}`));
+        });
+
+        function syncPreviewLayout() {
+            const warnsum = document.getElementById("warnsum");
+            const weatherZone = warnsum.parentElement;
+            const weatherScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--weather-scale")) || 1;
+            const baseSideWidth = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--side-column-width")) || 240;
+            const columnGap = 12 * weatherScale;
+            const topOffset = Math.max(0, (warnsum.clientHeight - summaryColumn.offsetHeight) / 2);
+            const warningWidth = warningList.scrollWidth;
+            const requiredWidth = Math.max(baseSideWidth, Math.ceil(summaryColumn.offsetWidth + columnGap + warningWidth));
+
+            weatherZone.style.width = `${requiredWidth}px`;
+            summaryColumn.style.top = `${topOffset}px`;
+            warningList.parentElement.style.top = `${topOffset}px`;
+            warningList.parentElement.style.right = `${summaryColumn.offsetWidth + columnGap}px`;
+        }
+
+        syncPreviewLayout();
+        window.addEventListener("resize", syncPreviewLayout);
+    </script>
+</body>
+</html>
