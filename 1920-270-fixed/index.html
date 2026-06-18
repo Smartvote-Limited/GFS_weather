@@ -56,7 +56,7 @@
             background-color: var(--stage-blue);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             position: relative;
             gap: 20px;
             overflow: hidden;
@@ -76,16 +76,19 @@
             display: block;
         }
         .content {
-            flex: 1;
-            height: 100%;
-            text-align: center;
-            position: relative;
+            position: absolute;
+            top: 16px;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 2;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 10px;
-            min-width: 0;
+            text-align: center;
+            pointer-events: none;
+            width: max-content;
+            max-width: calc(100% - (var(--left-padding) + var(--side-column-width) + var(--right-padding) + var(--side-column-width)));
         }
         .content-copy {
             position: relative;
