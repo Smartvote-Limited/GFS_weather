@@ -36,7 +36,9 @@
             --warning-row-height: calc(78.52px * var(--stage-scale));
             --weather-column-gap: calc(13.44px * var(--stage-scale));
             --title-font-size: calc(80px * var(--stage-scale));
+            --title-font-size-en: calc(64px * var(--stage-scale));
             --time-font-size: calc(52px * var(--stage-scale));
+            --time-font-size-en: calc(38px * var(--stage-scale));
         }
 
         * {
@@ -141,6 +143,14 @@
             text-shadow: 0 1px 2px rgba(15, 60, 150, 0.45);
         }
 
+        body[data-language="en"] #title {
+            font-size: var(--title-font-size-en);
+        }
+
+        body[data-language="en"] #hkt-time {
+            font-size: var(--time-font-size-en);
+        }
+
         .weather-zone {
             position: absolute;
             top: var(--vertical-padding);
@@ -220,7 +230,7 @@
         }
     </style>
 </head>
-<body>
+<body data-language="en">
     <div class="container">
         <div class="logo">
             <img src="https://www.gfs.gov.hk/filemanager/template/common/images/logo-GFS.svg" alt="Logo">
