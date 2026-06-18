@@ -2,25 +2,41 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1920, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Weather Information</title>
     <style>
         :root {
-            --stage-width: 1920px;
+            --design-width: 1920;
+            --design-height: 270;
+            --stage-scale: min(calc(100vw / (var(--design-width) * 1px)), calc(100vh / (var(--design-height) * 1px)));
+            --stage-width: calc(var(--design-width) * 1px * var(--stage-scale));
+            --stage-height: calc(var(--design-height) * 1px * var(--stage-scale));
             --stage-blue: #0f3c96;
-            --left-padding: 120px;
-            --right-padding: 150px;
-            --side-column-width: 240px;
-            --vertical-padding: min(16px, 5.9259vh);
-            --logo-height: min(220px, 81.4815vh);
-            --content-gap: min(10px, 3.7037vh);
-            --weather-gap: min(8px, 2.963vh);
-            --warning-gap: min(6px, 2.2222vh);
-            --weather-item-gap: min(5px, 1.8519vh);
-            --weather-icon-size: min(42px, 15.5556vh);
-            --weather-font-size: min(34px, 12.5926vh);
-            --title-font-size: min(80px, 29.6296vh);
-            --time-font-size: min(52px, 19.2593vh);
+            --left-padding: calc(120px * var(--stage-scale));
+            --right-padding: calc(120px * var(--stage-scale));
+            --side-column-width: calc(240px * var(--stage-scale));
+            --vertical-padding: calc(16px * var(--stage-scale));
+            --logo-height: calc(220px * var(--stage-scale));
+            --content-gap: calc(10px * var(--stage-scale));
+            --content-padding-x: calc(28px * var(--stage-scale));
+            --content-padding-y-top: calc(8px * var(--stage-scale));
+            --content-padding-y-bottom: calc(10px * var(--stage-scale));
+            --content-panel-offset-y: calc(10px * var(--stage-scale));
+            --content-panel-offset-x: calc(22px * var(--stage-scale));
+            --content-panel-radius: calc(18px * var(--stage-scale));
+            --content-panel-shadow-y: calc(6px * var(--stage-scale));
+            --content-panel-shadow-blur: calc(16px * var(--stage-scale));
+            --weather-icon-size: calc(47.04px * var(--stage-scale));
+            --weather-font-size: calc(38.08px * var(--stage-scale));
+            --weather-item-gap: calc(5.6px * var(--stage-scale));
+            --weather-row-height: calc(47.04px * var(--stage-scale));
+            --weather-stack-gap: calc(8.96px * var(--stage-scale));
+            --warning-row-gap: calc(2px * var(--stage-scale));
+            --warning-column-gap: calc(2px * var(--stage-scale));
+            --warning-row-height: calc(78.52px * var(--stage-scale));
+            --weather-column-gap: calc(13.44px * var(--stage-scale));
+            --title-font-size: calc(80px * var(--stage-scale));
+            --time-font-size: calc(52px * var(--stage-scale));
         }
 
         * {
@@ -29,72 +45,102 @@
 
         html,
         body {
-            width: var(--stage-width);
-            min-width: var(--stage-width);
-            max-width: var(--stage-width);
+            width: 100vw;
             height: 100vh;
             margin: 0;
-            overflow-x: hidden;
-            overflow-y: hidden;
+            overflow: hidden;
             background-color: var(--stage-blue);
         }
+
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            justify-content: flex-start;
-            align-items: stretch;
+            justify-content: center;
+            align-items: center;
             color: #fff;
             font-size: 36px;
         }
+
         .container {
             width: var(--stage-width);
-            min-width: var(--stage-width);
-            max-width: var(--stage-width);
-            height: 100vh;
+            height: var(--stage-height);
             padding: var(--vertical-padding) var(--right-padding) var(--vertical-padding) var(--left-padding);
             background-color: var(--stage-blue);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             position: relative;
             gap: 20px;
-            overflow: visible;
+            overflow: hidden;
         }
+
         .logo {
             width: var(--side-column-width);
+            height: 100%;
             text-align: center;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .logo img {
             height: var(--logo-height);
             width: auto;
             display: block;
         }
+
         .content {
-            flex: 1;
-            text-align: center;
-            position: relative;
+            position: absolute;
+            top: var(--vertical-padding);
+            bottom: var(--vertical-padding);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: var(--content-gap);
-            min-width: 0;
+            text-align: center;
+            pointer-events: none;
+            width: max-content;
+            max-width: calc(100% - (var(--left-padding) + var(--side-column-width) + var(--right-padding) + var(--side-column-width)));
         }
+
+        .content-copy {
+            position: relative;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            align-self: center;
+            gap: var(--content-gap);
+            padding: var(--content-padding-y-top) var(--content-padding-x) var(--content-padding-y-bottom);
+            isolation: isolate;
+        }
+
+        .content-copy::before {
+            content: "";
+            position: absolute;
+            inset: calc(-1 * var(--content-panel-offset-y)) calc(-1 * var(--content-panel-offset-x));
+            background: rgba(15, 60, 150, 0.82);
+            border-radius: var(--content-panel-radius);
+            box-shadow: 0 var(--content-panel-shadow-y) var(--content-panel-shadow-blur) rgba(15, 60, 150, 0.14);
+            z-index: -1;
+        }
+
         .weather-zone {
+            position: absolute;
+            top: var(--vertical-padding);
+            right: var(--right-padding);
+            bottom: var(--vertical-padding);
             width: var(--side-column-width);
-            flex-shrink: 0;
+            z-index: 1;
             overflow: visible;
         }
+
         #warnsum {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: var(--weather-gap);
+            position: relative;
             width: 100%;
+            height: 100%;
             overflow: visible;
         }
 
@@ -111,11 +157,31 @@
             text-align: center;
         }
 
+        .warning-column {
+            position: absolute;
+            left: 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            overflow: visible;
+        }
+
+        .summary-column {
+            position: absolute;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            gap: var(--weather-stack-gap);
+            min-width: 0;
+        }
+
         .weather-item {
             display: inline-flex;
             align-items: center;
             gap: var(--weather-item-gap);
-            height: var(--weather-icon-size);
+            height: var(--weather-row-height);
             max-width: 100%;
             white-space: nowrap;
             font-size: var(--weather-font-size);
@@ -127,29 +193,41 @@
         }
 
         .warning-list {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-rows: repeat(2, var(--warning-row-height));
             align-items: center;
-            justify-content: center;
-            gap: var(--warning-gap);
-            width: 100%;
-            overflow: visible;
+            row-gap: var(--warning-row-gap);
+            column-gap: var(--warning-column-gap);
+            width: max-content;
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        #warnsum img.warning-icon {
+            width: auto;
+            height: var(--warning-row-height);
+            display: block;
         }
 
         #title {
             font-size: var(--title-font-size);
             font-weight: 700;
             line-height: 1;
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(15, 60, 150, 0.45);
         }
+
         #hkt-time {
             font-size: var(--time-font-size);
             font-weight: 700;
             line-height: 1.05;
             white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(15, 60, 150, 0.45);
         }
     </style>
     <script>
-        let currentLang = 'tc'; // Start with Chinese (Traditional)
+        let currentLang = "tc";
 
         const translations = {
             en: {
@@ -164,7 +242,7 @@
 
         function updateTime() {
             const now = new Date();
-            const hktOffset = 8 * 60; // HKT is UTC+8
+            const hktOffset = 8 * 60;
             const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
             const hkt = new Date(utc.getTime() + hktOffset * 60000);
 
@@ -174,11 +252,11 @@
         }
 
         function padWithZero(number) {
-            return number.toString().padStart(2, '0');
+            return number.toString().padStart(2, "0");
         }
 
         function toggleLanguage() {
-            currentLang = currentLang === 'tc' ? 'en' : 'tc';
+            currentLang = currentLang === "tc" ? "en" : "tc";
             updateTranslations();
             updateTime();
         }
@@ -209,23 +287,67 @@
             const icon = document.createElement("img");
             icon.src = src;
             icon.alt = "";
+            icon.className = "warning-icon";
+            icon.addEventListener("load", syncWeatherLayout, { once: true });
+            icon.addEventListener("error", syncWeatherLayout, { once: true });
             return icon;
         }
 
-        function renderWeatherSummary({ iconCode, temperature = "--", humidity = "--", uvIndex } = {}) {
+        function ensureWeatherLayout() {
             const warnsum = document.getElementById("warnsum");
-            warnsum.innerHTML = "";
+            let warningColumn = document.getElementById("warning-column");
+            let summaryColumn = document.getElementById("summary-column");
+
+            if (!warningColumn || !summaryColumn) {
+                warnsum.innerHTML = "";
+
+                warningColumn = document.createElement("div");
+                warningColumn.id = "warning-column";
+                warningColumn.className = "warning-column";
+
+                summaryColumn = document.createElement("div");
+                summaryColumn.id = "summary-column";
+                summaryColumn.className = "summary-column";
+
+                warnsum.append(warningColumn, summaryColumn);
+            }
+
+            return { warningColumn, summaryColumn };
+        }
+
+        function syncWeatherLayout() {
+            const warnsum = document.getElementById("warnsum");
+            const weatherZone = warnsum.parentElement;
+            const { warningColumn, summaryColumn } = ensureWeatherLayout();
+            const baseSideWidth = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--side-column-width")) || 240;
+            const columnGap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--weather-column-gap")) || 12;
+            const topOffset = Math.max(0, (warnsum.clientHeight - summaryColumn.offsetHeight) / 2);
+            const warningList = warningColumn.querySelector(".warning-list");
+            const warningWidth = warningList ? warningList.scrollWidth : 0;
+            const requiredWidth = Math.max(baseSideWidth, Math.ceil(summaryColumn.offsetWidth + columnGap + warningWidth));
+
+            weatherZone.style.width = `${requiredWidth}px`;
+            summaryColumn.style.top = `${topOffset}px`;
+            warningColumn.style.top = `${topOffset}px`;
+            warningColumn.style.right = `${summaryColumn.offsetWidth + columnGap}px`;
+        }
+
+        function renderWeatherSummary({ iconCode, temperature = "--", humidity = "--", uvIndex } = {}) {
+            const { summaryColumn } = ensureWeatherLayout();
+            summaryColumn.innerHTML = "";
 
             const weatherIcon = iconCode
                 ? `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconCode}.png`
                 : "https://www.hko.gov.hk/images/HKOWxIconOutline/pic60.png";
 
-            warnsum.append(createWeatherItem(weatherIcon, `${temperature}°C`));
-            warnsum.append(createWeatherItem("https://img.icons8.com/ios/50/wet.png", `${humidity}%`, true));
+            summaryColumn.append(createWeatherItem(weatherIcon, `${temperature}°C`));
+            summaryColumn.append(createWeatherItem("https://img.icons8.com/ios/50/wet.png", `${humidity}%`, true));
 
             if (uvIndex !== undefined) {
-                warnsum.append(createWeatherItem("https://img.icons8.com/external-flaticons-lineal-color-flat-icons/64/external-uv-index-weather-flaticons-lineal-color-flat-icons-2.png", uvIndex));
+                summaryColumn.append(createWeatherItem("https://img.icons8.com/external-flaticons-lineal-color-flat-icons/64/external-uv-index-weather-flaticons-lineal-color-flat-icons-2.png", uvIndex));
             }
+
+            syncWeatherLayout();
         }
 
         async function fetchData(url) {
@@ -237,12 +359,9 @@
         }
 
         async function fetchWeatherData() {
-            let warnsum_div = document.getElementById("warnsum");
+            const weatherURL = "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread";
 
-            // Fetch today's weather information
-            const weatherURL = `https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread`;
             fetchData(weatherURL).then(data => {
-                // Process the weather information
                 const weatherIcon = data.icon?.[0];
                 const temperature = data.temperature?.data?.find(item => item.place === "Chek Lap Kok")?.value;
                 const humidity = data.humidity?.data?.find(item => item.place === "Hong Kong Observatory")?.value;
@@ -255,29 +374,27 @@
                     uvIndex
                 });
 
-                // Fetch weather warning summary after the weather information is processed
-                const warnsumURL = `https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum`;
+                const warnsumURL = "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum";
                 return fetchData(warnsumURL);
             }).then(data => {
+                const { warningColumn } = ensureWeatherLayout();
                 const warningList = document.createElement("div");
                 warningList.className = "warning-list";
 
-                // Define a fixed order for the warnings
                 const warningTypes = [
-                    { type: 'WFIRE', codes: { "WFIREY": 'firey.gif', "WFIRER": 'firer.gif' } },
-                    { type: 'WFROST', src: 'frost.gif' },
-                    { type: 'WHOT', src: 'vhot.gif' },
-                    { type: 'WCOLD', src: 'cold.gif' },
-                    { type: 'WMSGNL', src: 'sms.gif' },
-                    { type: 'WRAIN', codes: { "WRAINA": 'raina.gif', "WRAINR": 'rainr.gif', "WRAINB": 'rainb.gif' } },
-                    { type: 'WFNTSA', src: 'ntfl.gif' },
-                    { type: 'WL', src: 'landslip.gif' },
-                    { type: 'WTCSGNL', codes: { "TC1": 'tc1.gif', "TC3": 'tc3.gif', "TC8NE": 'tc8ne.gif', "TC8SE": 'tc8b.gif', "TC8NW": 'tc8d.gif', "TC8SW": 'tc8c.gif', "TC9": 'tc9.gif', "TC10": 'tc10.gif' } },
-                    { type: 'WTMW', src: 'tsunami-warn.gif' },
-                    { type: 'WTS', src: 'ts.gif' }
+                    { type: "WFIRE", codes: { WFIREY: "firey.gif", WFIRER: "firer.gif" } },
+                    { type: "WFROST", src: "frost.gif" },
+                    { type: "WHOT", src: "vhot.gif" },
+                    { type: "WCOLD", src: "cold.gif" },
+                    { type: "WMSGNL", src: "sms.gif" },
+                    { type: "WRAIN", codes: { WRAINA: "raina.gif", WRAINR: "rainr.gif", WRAINB: "rainb.gif" } },
+                    { type: "WFNTSA", src: "ntfl.gif" },
+                    { type: "WL", src: "landslip.gif" },
+                    { type: "WTCSGNL", codes: { TC1: "tc1.gif", TC3: "tc3.gif", TC8NE: "tc8ne.gif", TC8SE: "tc8b.gif", TC8NW: "tc8d.gif", TC8SW: "tc8c.gif", TC9: "tc9.gif", TC10: "tc10.gif" } },
+                    { type: "WTMW", src: "tsunami-warn.gif" },
+                    { type: "WTS", src: "ts.gif" }
                 ];
 
-                // Generate HTML content based on the fixed order
                 warningTypes.forEach(warning => {
                     if (data[warning.type] !== undefined) {
                         const warningData = data[warning.type];
@@ -292,23 +409,25 @@
                     }
                 });
 
-                warnsum_div.append(warningList);
+                warningColumn.replaceChildren(warningList);
+                syncWeatherLayout();
             }).catch(error => {
                 console.error("Error fetching data:", error);
             });
-
         }
 
         document.addEventListener("DOMContentLoaded", function () {
             renderWeatherSummary();
             fetchWeatherData();
-            setInterval(fetchWeatherData, 1000 * 60 * 5); // Update every 5 minutes
+            setInterval(fetchWeatherData, 1000 * 60 * 5);
 
             updateTime();
-            setInterval(updateTime, 1000); // Update time every second
+            setInterval(updateTime, 1000);
 
             updateTranslations();
-            setInterval(toggleLanguage, 1000 * 30); // Switch language every 30 seconds
+            setInterval(toggleLanguage, 1000 * 30);
+
+            window.addEventListener("resize", syncWeatherLayout);
         });
     </script>
 </head>
@@ -316,8 +435,10 @@
     <div class="container">
         <div class="logo"><img src="https://www.gfs.gov.hk/filemanager/template/common/images/logo-GFS.svg" alt="Logo"></div>
         <div class="content">
-            <div id="title">Government Flying Service</div>
-            <div id="hkt-time">HKT Time: </div>
+            <div class="content-copy">
+                <div id="title">Government Flying Service</div>
+                <div id="hkt-time">HKT Time: </div>
+            </div>
         </div>
         <div class="weather-zone">
             <div id="warnsum"></div>
