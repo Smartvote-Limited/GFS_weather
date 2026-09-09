@@ -257,7 +257,7 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             fetchWeatherData();
-            setInterval(fetchWeatherData, 1000 * 60 * 5); // Update every 5 minutes
+            setInterval(fetchWeatherData, 1000 * 30); // Update every 30 seconds
 
             updateTime();
             setInterval(updateTime, 1000); // Update time every second
